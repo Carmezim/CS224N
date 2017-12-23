@@ -1,0 +1,123 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{CS224N Assignment #1}
+\author{Adriano Carmezim }
+\date{September 2017}
+
+\begin{document}
+
+\maketitle
+
+\section{Softmax}
+\subsubsection*{(a)}
+    \begin{center}
+        $softmax(x + c)$
+        \large
+        {
+            = $\frac{e^{x + c}}{\sum_j e^{x + c}}$ \\[5pt]
+            = $\frac{e^{x}e^{c}}{\sum_j e^{x} e^{c}}$ \\[5pt]
+            = $\frac{e^{x}e^{c}}{e^{c}\sum_j e^{x}}$ \\[5pt]
+            = $\frac{e^{x}}{\sum_j e^{x}}$ \\[5pt]
+            = $softmax(x)$
+        }
+    \end{center}
+
+\section{Neural Networks Basics}
+\subsubsection*{(a)}
+\begin{center}
+    \large
+    {
+        $\sigma = \frac{1}{1 + e^{-x}}$ \\[15pt]
+        $\nabla \sigma = \frac {\partial \sigma}{\partial x}$
+        = $\frac{d}{dx} \frac{1}{1 + e^{-x}}$\\[6pt]
+        = $\frac{d}{dx} (1 + e^{-x})^{-1}$\\[6pt]
+        = $(1 + e^{-x})^{-2}(-e^{-x})$ \\[6pt]
+        = $\frac{e^{-x}}{(e^{-x} + 1)^2}$ \\[6pt]
+        = $\sigma(x)(1 - \sigma(x))$
+    }
+\end{center}
+
+\newpage
+
+\subsubsection*{(b)}
+\begin{center}
+    $CE(y, \hat{y}) = - \sum_{i}y_i log(\hat{y_i})
+    \textnormal{, where } \hat{y} = softmax(\Theta_{i})$ \\[10pt]
+    $\nabla_{\Theta}CE(y, \hat{y}) = \frac{\partial CE(y, \hat{y})}{\partial \Theta_{i}}$ \\[5pt]
+    $= \sum_{i} y_{i} \frac{\partial log(softmax(\Theta_{i}))}{\partial \Theta}$ \\[5pt]
+    $= \frac{\partial log(\frac{e^{\Theta_{k}}}{\sum_{j} \Theta_{j}})}{\partial \Theta}$ \\[5pt]
+    $= \frac{\partial log(e^{\Theta_{k}})}{\partial \Theta} -
+    \frac{\partial log(\sum_{j}e^{\Theta_{j}})}{\partial \Theta_{i}}$ \\[5pt]
+    $= \frac{\partial \Theta_{k}}{\partial \Theta} - \frac{1}{\sum_{j}e^{\Theta_{j}}} e^{\Theta_{i}}$ \\[5pt]
+    $= y- \hat{y}_{i}$ \\[25pt]
+\end{center}
+
+\subsubsection*{(c)}
+\begin{center}
+
+    $\frac{\partial J}{\partial x} \textnormal{, where } J = CE(y, \hat{y})$, \\[5pt]
+    
+    $h = sigmoid(xW_1 + b_1)$, \\[5pt]
+    $\hat{y} = softmax(hW_2 + b_2)$ \\[20pt]
+    
+    $\frac{\partial CE(y, \hat{y})}{\partial x} = \frac{\partial CE(y, \hat{y})}{\partial (hW_2 + b_2)}$
+    $\cdot \frac{\partial (hW_2 + b_2)}{\partial h}$
+    $\cdot \frac{\partial h}{\partial (xW_1 + b_1)}$
+    $\cdot \frac{\partial xW_1 + b_1}{\partial x}$ \\[5pt]
+    $ = (y - \hat{y}) \cdot W_2 \cdot ((xW_1 + b_1) - (xW_1 + b_1)^2) \cdot W_1$ 
+
+\end{center}
+
+\subsubsection*{(d)}
+\begin{center}
+    
+    $P = \textnormal{total number of parameters}$, \\
+    $P = H(D_x + 1) + D_y(H + 1)$ \\[25pt]
+
+\end{center}
+
+\section{word2vec}
+\subsubsection*{(a)}
+\begin{center}
+
+    $J_{softmax-CE}(o, v_{c}, U) = CE(y,\hat{y})$ \\[5pt]
+    $J = - \sum^{W}_{i=1}y_{i}log  \frac{e^{u^T_{i}v_{c}}}{\sum^W_{w=1}e^{u^T_w}}$ \\[5pt]
+    $ \frac{\partial J}{\partial v_c} = \frac{\partial CE}{\partial U^T v_c} \cdot \frac{\partial U^T v_c}{\partial v_c} $ \\[5pt]
+    $ = U^T \cdot (\hat{y} - y)$\\[25pt]
+\end{center}
+\subsubsection*{(b)}
+\begin{center}
+
+    $\frac{\partial J}{\partial U} = \frac{\partial CE}{\partial U^T v_c} \cdot \frac{\partial U^T v_c}{\partial U}$ \\[5pt]
+    $ = v_{c} \cdot (\hat{y} - y)^T$\\[25pt]
+
+\end{center}
+\subsubsection*{(c)}
+\begin{center}
+
+        $\frac{\partial J}{\partial v_c} = - \frac{1}{\sigma(u^T_o v_c)} \cdot \sigma(u^T_o v_c)(1 - \sigma(u^T_o v_c)) \cdot u_o - \sum^K_{k=1} \frac{1}{\sigma(-u^T_k v_c)} \cdot \sigma(-u^T_k v_c)(1 - \sigma(-u^T_k v_c)) \cdot -u_k$ \\[5pt]
+        $ = - (1 - \sigma(u^T_o v_c)) \cdot u_o - \sum^k_{k=1}(1 - \sigma(-u^T_k v_c)) \cdot -u_k$ \\[5pt]
+        $ = (\sigma(u^T_o v_c) - 1) \cdot u_o - \sum^K_{k=1}(\sigma(-u^T_k v_c) - 1) \cdot u_k$\\[15pt]
+        $\frac{\partial J}{\partial u_o} = - \frac{1}{\sigma(u^T_o v_c} \cdot \sigma(u^T_o v_c)(1 0 \sigma(u^T_o v_c)) \cdot v_c$ \\[5pt]
+        $ = (\sigma(u^T_o v_c) - 1) \cdot v_c$ \\[15pt]
+        $ \frac{\partial J}{\partial u_k} = - \frac{1}{\sigma(u^T_k v_c} \cdot \sigma(-u^T_k v_c)(1 - \sigma(-u^T_k v_c)) \cdot -v_c$ \\[5pt]
+        $ = - (\sigma(-u^T_k v_c) - 1) \cdot v_c$
+        
+\end{center}
+\subsubsection*{(d)}
+\begin{center}
+
+    skip-gram: \\[7pt]
+    $\sum_{-m\leq j \leq m \neq 0} \frac{\partial F(w_{c+j}, v_c)}{\partial v_j} = 0, \forall j \neq c $\\[10pt]
+    CBOW: \\[7pt]
+    $\frac{\partial F(w_{c}, \hat{v})}{\partial v_j} = 0, \forall j \notin \{c-m,...,c+m\}$ \\[5pt]
+    $\frac{\partial F(w_{c}, \hat{v})}{\partial v_j} = \frac{\partial F(w_{c}, \hat{v})}{\partial \hat{v}}, \forall j \in \{c-m,...,c+m\}$
+    
+\end{center}
+
+\section{Sentiment Analysis}
+\subsubsection*{(d)}
+    \textnormal{GloVe was trained on a considerable larger corpus and as higher dimensional word vectors proportionally encode more information it yielded a better accuracy in the results}
+\end{document}
+
