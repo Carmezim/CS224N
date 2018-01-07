@@ -59,8 +59,6 @@ def cross_entropy_loss(y, yhat):
     """
 
     ### YOUR CODE HERE
-    print("y shape: ", tf.size(y))
-    print("y hat shape: ", tf.size(yhat))
     y = tf.cast(y, tf.float32)
     out = - tf.reduce_sum(tf.multiply(y, tf.log(yhat)))
     ### END YOUR CODE
